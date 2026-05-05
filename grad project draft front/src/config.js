@@ -7,7 +7,7 @@ const isDev = typeof window !== 'undefined' &&
 
 export const API_BASE = isDev
   ? 'http://127.0.0.1:3001'
-  : 'https://corpo-vpn-backend.onrender.com';
+  : 'https://corpo-vpn.onrender.com';
 
 export const AUTH_API   = `${API_BASE}/api/auth`;
 export const VPN_API    = `${API_BASE}/api/vpn`;
