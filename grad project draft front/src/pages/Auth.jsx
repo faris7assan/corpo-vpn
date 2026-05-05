@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Shield, Minus, Square, X, Copy } from 'lucide-react'
 
-const API = 'http://127.0.0.1:3001/api/auth'
-const POLICY_API = 'http://127.0.0.1:3001/api/policy'
+import { AUTH_API as API, POLICY_API } from '../config'
 
 export default function Auth() {
   const navigate = useNavigate()
