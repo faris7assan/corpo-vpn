@@ -73,6 +73,8 @@ Private Network Access
 └──────────────────────┘
 ```
 
+A Mermaid version with security boundaries is available in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
 ## Technology Stack
 
 ### Desktop Client
@@ -136,6 +138,10 @@ This project was developed as a **2026 Computer Science / Cybersecurity graduati
 - Linux networking
 - Backend API development
 - Security monitoring
+
+## Security
+
+See [`SECURITY.md`](SECURITY.md) for responsible disclosure and secret-handling guidance.
 
 ## Disclaimer
 
