@@ -4,18 +4,31 @@ node_modules/
 # Build output
 dist/
 dist-electron/
+build/
+coverage/
 
-# OS files
+# OS / IDE files
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
 
-# Environment files
+# Environment / local configuration
 .env
 .env.*
 !.env.example
 
-# Logs
+# Logs / temporary files
 *.log
+*.tmp
+*.cache
 
 # Sensitive / local-only files
 CONTEXT.md
+
+# Cryptographic / VPN material
+*.pem
+*.key
+*.p12
+*.pfx
+wg*.conf
