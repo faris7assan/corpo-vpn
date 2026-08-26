@@ -1,73 +1,150 @@
-<div align="center">
-  <img src="docs/logo.png" alt="Corpo VPN Logo" width="120" />
-  <h1>Corpo VPN</h1>
-  <p><strong>Zero-Trust Enterprise Security & WireGuard Automation</strong></p>
-</div>
+# CORPO VPN
 
----
+### Zero-Trust VPN Security Solution
 
-## 🛡️ Overview
+CORPO VPN is a full-stack cybersecurity graduation project designed to secure remote access to private infrastructure using a **Zero-Trust access model** and **WireGuard**.
 
-**Corpo VPN** is a graduation project built to modernize remote workforce security. It combines the blazing-fast cryptography of the **WireGuard** protocol with a **Zero-Trust Architecture** that actively scans host machines for compliance before granting network access. 
+Instead of trusting a device simply because it has valid credentials, the desktop client performs endpoint security checks before allowing the VPN tunnel to be established.
 
-If a user's machine is compromised (e.g., Antivirus is disabled, Firewall is off, or suspicious processes are running), the tunnel refuses to connect, protecting the internal network from lateral movement.
+## Security Model
 
-## ✨ Key Features
+```text
+User Authentication
+        ↓
+OTP Verification
+        ↓
+Endpoint Compliance Check
+        ↓
+Policy Decision
+   ┌────┴────┐
+ Compliant  Non-Compliant
+   ↓            ↓
+WireGuard     Access Denied
+Tunnel
+   ↓
+Private Network Access
+```
 
-- **Blazing Fast Cryptography**: Built on WireGuard for maximum throughput and minimal battery drain.
-- **Pre-Flight Compliance Scanning**: Scans Windows OS (using native PowerShell APIs) for:
-  - Active Antivirus Protection (Windows Defender or 3rd Party)
-  - Enabled Firewall Status
-  - BitLocker Drive Encryption
-  - Suspicious Background Processes
-- **Automated Peer Provisioning**: Bypasses the need for manual `.conf` files. The backend API securely generates private/public keypairs, assigns IPs, and injects them directly into the VPS kernel.
-- **Admin Dashboard**: Role-based access control allowing administrators to bypass compliance checks, monitor live connection stats, and re-provision peers.
-- **Secure Authentication**: Passwordless OTP authentication powered by Supabase and the Brevo Email API.
+## Key Security Features
 
-## 🏗️ Technology Stack
+- **Zero-Trust access control** — access is evaluated before establishing the tunnel.
+- **WireGuard VPN** — modern, lightweight VPN protocol for encrypted network connectivity.
+- **Endpoint compliance checks** — the Windows client checks security posture before connection.
+- **Antivirus status validation** — verifies active Windows Defender or third-party antivirus protection.
+- **Firewall validation** — checks whether the host firewall is enabled.
+- **BitLocker validation** — checks drive-encryption status.
+- **Suspicious-process checks** — identifies potentially suspicious background processes.
+- **OTP authentication** — passwordless authentication using one-time passwords.
+- **Automated peer provisioning** — backend services generate and provision WireGuard peers without manual configuration files.
+- **Role-based administration** — administrators can manage users, peers, and connection state.
+- **Connection monitoring** — tracks WireGuard handshake and traffic statistics.
 
-Corpo VPN is a fully integrated stack spanning the desktop client, the API backend, and the Linux routing infrastructure.
+## Architecture
 
-### Desktop Client (Frontend)
-- **Frameworks**: Electron.js, React 18, Vite
-- **Styling**: Tailwind CSS, Phosphor Icons
-- **System Integration**: Native Node.js `child_process` for Windows PowerShell querying and `wg-quick` tunnel management.
+```text
+┌──────────────────────┐
+│   Windows Desktop    │
+│  Electron + React    │
+│                      │
+│ • Authentication     │
+│ • Compliance checks  │
+│ • WireGuard control  │
+└──────────┬───────────┘
+           │ HTTPS / API
+           ▼
+┌──────────────────────┐
+│   Backend API        │
+│      NestJS          │
+│                      │
+│ • Authentication     │
+│ • Session management │
+│ • Peer provisioning  │
+│ • Policy logic       │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│    Ubuntu VPS        │
+│      WireGuard       │
+│                      │
+│ • wg0 tunnel         │
+│ • NAT / iptables     │
+│ • Peer management    │
+└──────────────────────┘
+```
 
-### Centralized API (Backend)
-- **Framework**: NestJS (TypeScript)
-- **Database & Auth**: Supabase (PostgreSQL), JWT session management
-- **Email Delivery**: Brevo HTTP API (replaces SMTP for reliable OTPs)
-- **Deployment**: Hosted on Render
+## Technology Stack
+
+### Desktop Client
+- Electron.js
+- React 18
+- Vite
+- Tailwind CSS
+- Node.js
+- Windows PowerShell integration
+
+### Backend
+- NestJS
+- TypeScript
+- Supabase / PostgreSQL
+- JWT session management
+- Brevo HTTP API for OTP delivery
 
 ### VPN Infrastructure
-- **Server OS**: Ubuntu Linux VPS
-- **Protocol**: WireGuard (`wg0`)
-- **Routing**: `iptables` NAT forwarding
-- **Microservice**: A dedicated Node.js/Express API running on the VPS to handle automated `wg set` and `wg-quick save` peer injection.
+- Ubuntu Linux VPS
+- WireGuard
+- iptables / NAT
+- Node.js / Express service for peer provisioning
 
-## 🚀 How It Works
+## Connection Workflow
 
-1. **Auth & Identity**: The user logs into the Electron app using their corporate email and an OTP.
-2. **Configuration Fetch**: The desktop client retrieves the user's pre-assigned WireGuard configuration (Private Key, Assigned IP) from the NestJS backend.
-3. **Endpoint Validation**: The Electron Main Process executes an invisible PowerShell script to validate system health. 
-4. **Tunnel Initialization**: If compliant, the client uses `electron-builder` bundled binaries to write a temporary `wg0.conf` and executes a WireGuard handshake directly with the VPS on port `51820`.
-5. **Live Monitoring**: The UI streams live `rx/tx` byte counts and handshake timestamps via IPC channels.
+1. User signs in with corporate email.
+2. OTP authentication verifies the user's identity.
+3. The client retrieves the user's VPN configuration.
+4. The desktop client evaluates the device security posture.
+5. The policy decision determines whether access is allowed.
+6. A WireGuard tunnel is established only when the endpoint satisfies the required checks.
+7. Connection statistics and handshake information are monitored by the application.
 
-## 🛠️ Development & Build
+## Development
 
-### Prerequisites
-- Node.js (v18+)
-- Windows 10/11 (Required for the desktop client compliance features)
+### Requirements
 
-### Building the Desktop Client
+- Node.js 18+
+- Windows 10/11 for the desktop compliance features
+- WireGuard
+- Access to a Linux VPS for the VPN infrastructure
+
+### Build the Desktop Client
 
 ```bash
 cd "grad project draft front"
 npm install
 npm run electron:build
 ```
-This will compile the React UI, bundle the Electron backend, and output a portable `Corpo VPN Setup 1.0.0.exe` installer inside the `dist-electron` folder.
 
-## 📄 License
+The build produces the Windows installer in the Electron build output directory.
 
-Created as a Full-Stack Graduation Project (2026).
+## Project Scope
+
+This project was developed as a **2026 Computer Science / Cybersecurity graduation project** and demonstrates practical application of:
+
+- Zero-Trust security principles
+- VPN and network security
+- Endpoint security posture assessment
+- Authentication and authorization
+- Linux networking
+- Backend API development
+- Security monitoring
+
+## Disclaimer
+
+This project is intended for educational, research, and authorized security-testing environments. Deploy it only on infrastructure you own or are explicitly authorized to administer.
+
+## Author
+
+**Hassan Faris**  
+Cybersecurity Graduate | Network Security | SOC | Penetration Testing
+
+- GitHub: https://github.com/faris7assan
+- Portfolio: https://hassanhamedfaris69.base44.app/
